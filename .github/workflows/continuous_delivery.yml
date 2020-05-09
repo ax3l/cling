@@ -1,0 +1,79 @@
+name: build artifacts
+
+on:
+  push:
+#    tags:
+#  release:
+#    types:
+#      - created
+#  schedule:
+#    # nightly at 1 AM
+#    - cron: '0 1 * * *'
+
+# [macos-10.15, ubuntu-18.04, windows-2019]
+jobs:
+  build_ubuntu:
+    name: Build for Ubuntu 18.04
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        set -ex
+        sudo apt-get update
+        sudo apt-get install -y clang-5.0 debhelper devscripts git gnupg llvm-5.0-dev python
+        python -m pip install -U pip setuptools wheel
+        python -m pip install lit --user
+
+        export CXXLIB=libstdc++
+        export CXX=clang++-5.0
+        export CC=clang-5.0
+        export CLING_BUILD_FLAGS="-DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCLANG_ENABLE_ARCMT=OFF -DCLANG_ENABLE_STATIC_ANALYZER=OFF -DLLVM_ENABLE_WARNINGS=OFF -DCLING_ENABLE_WARNINGS=ON"
+        export CLING_USER_ROOT=$PWD
+        export CLING_BUILD_DEPS="$CLING_USER_ROOT/deps"
+        export CLING_LOCAL_BIN="$CLING_USER_ROOT/bin"
+
+        tools/packaging/cpt.py -y \
+          --check-requirements \
+          --current-dev=tar \
+          --with-binary-llvm \
+          --with-llvm-tar \
+          --with-cling-url=https://github.com/root-project/cling.git \
+          --with-clang-url=http://root.cern.ch/git/clang.git \
+          --with-cmake-flags="$CLING_BUILD_FLAGS"
+
+        ls -hal .
+#    - uses: actions/upload-artifact@v1
+#      name: Upload Artifact
+#      with:
+#        name: build & install
+#        path: <somePrefixPath>
+
+  build_macOS:
+    name: Build for macOS 10.15
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        set -ex
+        python -m pip install lit --user
+
+        export CXXLIB=libstdc++
+        export CXX=clang++
+        export CC=clang
+        export CLING_BUILD_FLAGS="-DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCXX_EXTENSIONS=OFF -DCLANG_ENABLE_ARCMT=OFF -DCLANG_ENABLE_STATIC_ANALYZER=OFF -DLLVM_ENABLE_WARNINGS=OFF -DCLING_ENABLE_WARNINGS=ON"
+        export CLING_USER_ROOT=$PWD
+        export CLING_BUILD_DEPS="$CLING_USER_ROOT/deps"
+        export CLING_LOCAL_BIN="$CLING_USER_ROOT/bin"
+
+        tools/packaging/cpt.py -y \
+          --check-requirements \
+          --current-dev=tar \
+          --with-binary-llvm \
+          --with-llvm-tar \
+          --with-cling-url=https://github.com/root-project/cling.git \
+          --with-clang-url=http://root.cern.ch/git/clang.git \
+          --with-cmake-flags="$CLING_BUILD_FLAGS"
+
+        ls -hal .
