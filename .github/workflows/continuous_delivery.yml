@@ -35,9 +35,8 @@ jobs:
 
         tools/packaging/cpt.py -y \
           --check-requirements \
-          --current-dev=tar \
-          --with-binary-llvm \
-          --with-llvm-tar \
+          --no-test \
+          --current-dev=deb \
           --with-cling-url=https://github.com/root-project/cling.git \
           --with-clang-url=http://root.cern.ch/git/clang.git \
           --with-cmake-flags="$CLING_BUILD_FLAGS"
@@ -69,9 +68,8 @@ jobs:
 
         tools/packaging/cpt.py -y \
           --check-requirements \
-          --current-dev=tar \
-          --with-binary-llvm \
-          --with-llvm-tar \
+          --no-test \
+          --current-dev=dmg \
           --with-cling-url=https://github.com/root-project/cling.git \
           --with-clang-url=http://root.cern.ch/git/clang.git \
           --with-cmake-flags="$CLING_BUILD_FLAGS"
